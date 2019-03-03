@@ -41,7 +41,7 @@ class User {
       this.ENCRYPTED_PRIVATE_KEY.address,
     );
     console.log(`User-completed initialization. Blockchain address:  ${this.account.pubKey}`);
-    console.log(`사용자 - 초기화를 완료 하였습니다. Blockchain address: ${this.account.pubKey}`);
+    
   }
 
   getAddress() {

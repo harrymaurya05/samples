@@ -39,7 +39,7 @@ class MediBloc {
       this.ENCRYPTED_PRIVATE_KEY.address,
     );
 
-    console.log(`MediBloc - 초기화를 완료 하였습니다. Blockchain address: ${this.account.pubKey}`);
+    console.log(`MediBloc - Initialization completed. Blockchain address: ${this.account.pubKey}`);
   }
 
   static generateCertificate(blockchainAddress, certification) {

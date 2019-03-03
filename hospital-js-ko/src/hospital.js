@@ -62,7 +62,7 @@ class Hospital {
     // If you want to create a new keyPair, use the following code.
     // this.account = new Account();
     // Hospital - Complete initialization = 병원 - 초기화를 완료 하였습니다
-    console.log(`병원 - 초기화를 완료 하였습니다. Blockchain address: ${this.account.pubKey}`);
+    console.log(`Hospital - Complete initialization. Blockchain address: ${this.account.pubKey}`);
   }
 
   /**
