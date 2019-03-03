@@ -7,9 +7,12 @@ const medjs = Medjs.init([BLOCKCHAIN_URL]);
 class Hospital {
   /**
    * 테스트 실행을 위해 샘플 데이터를 설정 하고, 블록체인 account 를 생성 합니다.
+   * Set the sample data
+   for the test run, and create a block chain account.
    */
   constructor() {
     /** 샘플 데이터 설정 */
+    // Sample data settings
     this.MNEMONIC = 'canyon roast street knock library amount enter popular sea kidney pupil furnace';
     this.PRIVATE_KEY = 'eede9347908b2ac3801828cc3293da19109c0730c47314a694c9acacbb95d3da';
     this.ENCRYPTED_PRIVATE_KEY = {
@@ -38,36 +41,48 @@ class Hospital {
     this.PASSWORD = 'hospitalPassWord123!';
 
     // 병원의 환자 list 생성
+    // Generate patient's patient list
     this.patientList = [
-      { no: '00000000', name: 'ㅇㅇㅇ', RRN: '000000-0000000' },
-      { no: '11111111', name: 'ㅁㅁㅁ', RRN: '111111-1111111' },
-      { no: '12345678', name: '홍길동', RRN: '750101-1234567' },
+      // Hong Gil Dong == 
+      { no: '00000000', name: 'Mike', RRN: '000000-0000000' },
+      { no: '11111111', name: 'jim ', RRN: '111111-1111111' },
+      { no: '12345678', name: 'Hong Gil Dong', RRN: '750101-1234567' },
     ];
 
     /** 블록체인 account 생성 */
+    /* Create a block chain account */
     // 새로운 account 를 생성합니다. 여기서는 예제 코드 작동을 위해 주어진 encrypted private key 를 이용 합니다.
+    // Create a new account. Here we will use the given encrypted private key for example code operation.
     this.account = new medjs.local.Account(
       this.PASSWORD,
       this.ENCRYPTED_PRIVATE_KEY,
       this.ENCRYPTED_PRIVATE_KEY.address,
     );
     // 새로운 keyPair 를 생성 하고자 하는 경우, 다음 코드를 이용 합니다.
+    // If you want to create a new keyPair, use the following code.
     // this.account = new Account();
-
+    // Hospital - Complete initialization = 병원 - 초기화를 완료 하였습니다
     console.log(`병원 - 초기화를 완료 하였습니다. Blockchain address: ${this.account.pubKey}`);
   }
 
   /**
+   * 
    * 주민등록번호로 환자 ID 를 조회하여, 해당 환자 정보에 블록체인 account 를 등록 합니다.
    * 실제 구현 시, 아래 제시된 예외처리가 모두 포함 되어야 합니다.
    */
+  /*
+  * View the patient ID with the resident registration number and register the block chain account in the relevant patient information.
+  * In your actual implementation, all of the exceptions listed below should be included.
+  */
   async mapAccountOntoPatientId(user) {
     // 인증서 블록체인 주소 일치 여부 확인
+    // Verification of Certificate Block Chain Address Match.
     if (user.getAddress() !== user.certificate.blockchainAddress) {
       throw new Error('주어진 블록체인 주소가 인증서의 블록체인 주소와 일치하지 않습니다.');
     }
 
     // tx 의 인증서 hash 와 일치 여부 확인
+    // tx Check whether the certificate hash matches
     const isUploaded
       = await Hospital.isUploadedOnBlockchain(user.certificate, user.certificateTxHash);
     if (!isUploaded) {
@@ -75,16 +90,20 @@ class Hospital {
     }
 
     // CI 유효성 확인
+    // CI Validation
     const ci = user.certificate.certification.personCi;
     if (!Hospital.isValidCI(ci, user.residentRegistrationNumber)) {
       throw new Error('주어진 CI 는 해당 주민등록번호의 CI 가 아닙니다.');
     }
 
     // 환자 ID 와 블록체인 account 연계
+    // Linking Patient ID with Block Chain Account
     const patient = this.findPatientWithRRN(user.residentRegistrationNumber);
     if (patient != null) {
       patient.blockchainAddress = user.getAddress();
     } else {
+      // Your resident registration number is = 주민등록번호가
+      // Patient information not found = 인 환자 정보를 찾을 수 없습니다
       throw new Error(`주민등록번호가 ${user.residentRegistrationNumber} 인 환자 정보를 찾을 수 없습니다.`);
     }
   }
@@ -92,6 +111,9 @@ class Hospital {
   /**
    * 주어진 블록체인 address 를 갖는 환자의 진료 청구서를 생성하여 반환 합니다.
    */
+  /** 
+   * Creates and returns a patient's medical bill with the given block chain address.
+  */
   getClaim(patientBlockchainAddress) {
     const patient = this.findPatientWithBlockchainAddress(patientBlockchainAddress);
 
@@ -177,17 +199,24 @@ class Hospital {
   /**
    * 청구서를 병원의 개인키로 sign 하고, 블록체인에 기록 할 수 있는 transaction 형태로 반환 합니다.
    */
+  /**
+   * 
+   * Sign the bill with the hospital's private key and return it in the form of a transaction that can be written to the block chain.
+   */
   async getSignedTransaction(claim) {
     // Blockchain 에서 병원 account 의 현재 정보를 조회 합니다.
+    // View the current information of your hospital account at.
     const accountStatus
       = await medjs.client.getAccount(this.account.pubKey, null, ACCOUNT_REQUEST_TYPE_TAIL);
     const nonce = parseInt(accountStatus.nonce, 10);
 
     // Blockchain 에 업로드 할 claim hash 값을 구하고, 블록체인 payload 에 기록 할 형태로 변환 합니다.
+    // To get the claim hash value to be uploaded, and convert it to the form to be recorded in the block chain payload.
     const claimHash = claimDataV1Utils.hashClaim(claim);
     const txPayload = medjs.local.transaction.createDataPayload(claimHash);
 
     // Blockchain 에 기록 할 transaction 을 생성하고, hash 값을 추가합니다.
+    // Create a transaction to write to, and add a hash value.
     const tx = medjs.local.transaction.dataUploadTx({
       from: this.account.pubKey,
       payload: txPayload,
@@ -196,24 +225,33 @@ class Hospital {
     });
 
     // transaction 을 sign 합니다. 비밀번호는 병원 account 의 개인키를 복호화 하는 데 사용 됩니다.
+    // To sign. The password is used to decrypt the private key of the hospital account.
     this.account.signTx(tx, this.PASSWORD);
 
     // 생성한 transaction 을 반환 합니다.
+    //To sign. The password returns the generated transaction. It is used to decrypt the private key of the hospital account.
     // 사용자는 이 transaction 을 블록체인에 등록 하여 이후 진본증명 시 이용 합니다.
+    // The user registers this transaction in the block chain and uses it for future proofs.
     return tx;
   }
 
   /**
    * certificateTxHash 로 블록체인에서 transaction 을 조회 하고,
    * 조회 한 transaction 에 기록 된 hash 값과 주어진 인증서의 hash 값이 일치 하는 지 여부를 반환 합니다.
+   *
+  /**
+   * certificateTxHash In the block chain,
+   * Returns whether the hash value recorded in the referenced transaction matches the hash value of the given certificate.
    */
   static isUploadedOnBlockchain(certificate, certificateTxHash) {
     // 주어진 인증서의 hash 깂
+    // Hash 의 of a given certificate
     const certificateHash = certificateDataV1Utils.hashCertificate(certificate);
     const certificateHashPayload = medjs.local.transaction.createDataPayload(certificateHash);
 
     try {
       // 블록체인에 기록 된 인증서 hash 값
+      // The certificate hash value recorded in the block chain.
       return medjs.client.getTransaction(certificateTxHash.hash)
         .then((tx) => {
           if (!tx) {
@@ -235,8 +273,15 @@ class Hospital {
   /**
    * 인증기관과 통신하여 주어진 ci 가 주어진 주민등록번호의 ci 가 맞는 지 확인 합니다.
    */
+  /**
+   * Communicates with the certification authority to verify that the given ci is the ci of the given resident registration number.
+   * 
+   * @param {*} ci 
+   * @param {*} residentRegistrationNumber 
+   */
   static isValidCI(ci, residentRegistrationNumber) {
     // TODO - sample 사용 기관에서 구현
+    // TODO - sample Implemented in your institution
     console.log(ci, residentRegistrationNumber);
     return true;
   }

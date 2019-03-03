@@ -49,6 +49,7 @@ class MediBloc {
 
   sendCertificate(certificate) {
     // Blockchain 에서 병원 account 의 현재 정보를 조회 합니다.
+    // View the current information of your hospital account at.
     return medjs.client.getAccount(this.account.pubKey, null, ACCOUNT_REQUEST_TYPE_TAIL)
       .then((accountStatus) => {
         const nonce = parseInt(accountStatus.nonce, 10);
@@ -64,6 +65,7 @@ class MediBloc {
         });
 
         // transaction 을 sign 합니다. 비밀번호는 병원 account 의 개인키를 복호화 하는 데 사용 됩니다.
+        // To sign. The password is used to decrypt the private key of the hospital account.
         this.account.signTx(tx, this.PASSWORD);
 
         return medjs.client.sendTransaction(tx).then((txHash) => {

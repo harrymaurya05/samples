@@ -31,7 +31,7 @@ class User {
     // address: 03107c5eae25e0443be09496162362fee885402379ee4c0fca30af8dbaa340e507
     this.PUBLIC_KEY = '107c5eae25e0443be09496162362fee885402379ee4c0fca30af8dbaa340e507933890e0c8f931351a9a37d7a151d1e8d9620b55adbe7a5e8663a4cea843f887';
     this.PASSWORD = 'userPassWord123!';
-
+    //this.userName = Hong Gil Dong;
     this.userName = '홍길동';
     this.residentRegistrationNumber = '750101-1234567';
 
@@ -40,7 +40,7 @@ class User {
       this.ENCRYPTED_PRIVATE_KEY,
       this.ENCRYPTED_PRIVATE_KEY.address,
     );
-
+    console.log(`User-completed initialization. Blockchain address:  ${this.account.pubKey}`);
     console.log(`사용자 - 초기화를 완료 하였습니다. Blockchain address: ${this.account.pubKey}`);
   }
 
